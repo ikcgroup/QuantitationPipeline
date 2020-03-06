@@ -6,7 +6,7 @@ import unittest
 
 import pandas as pd
 
-from quantify_proteins import ConfigError, CoWinner, QuantifyConfig
+from quantify_proteins import CoWinner
 
 
 BENCHMARK_DIR = os.path.join("test_data", "6hr data", "cowinner")
@@ -18,14 +18,6 @@ MERGE_BENCHMARK_FILE = os.path.join(
 
 def read_tsv(tsv_file: str) -> pd.DataFrame:
     return pd.read_csv(tsv_file, sep="\t")
-
-
-class QuantifyConfigTests(unittest.TestCase):
-    def test_validate(self):
-        try:
-            QuantifyConfig(TEST_CONFIG_FILE).validate()
-        except ConfigError as e:
-            self.fail(e.message)
 
 
 class CoWinnerTests(unittest.TestCase):
@@ -61,12 +53,6 @@ class CoWinnerTests(unittest.TestCase):
 
         merged_df = read_tsv(os.path.join(co_winner._merged_dir, "merged.csv"))
         benchmark_df = read_tsv(MERGE_BENCHMARK_FILE)
-
-        merged_counts = merged_df.N.value_counts()
-        benchmark_counts = benchmark_df.N.value_counts()
-        for n in merged_df.N.unique():
-            if merged_counts[n] != benchmark_counts[n]:
-                print(n)
 
         pd.testing.assert_frame_equal(merged_df, benchmark_df)
 
