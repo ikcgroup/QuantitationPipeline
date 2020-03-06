@@ -12,7 +12,7 @@ def get_file_id(file_path: str) -> str:
     return os.path.basename(file_path)[:8]
 
 
-def read_tsv(file_path: str) -> pd.DataFrame:
+def read_tsv(file_path: str, **kwargs) -> pd.DataFrame:
     """
     Reads the given tab-separated file using Pandas.
 
@@ -23,7 +23,7 @@ def read_tsv(file_path: str) -> pd.DataFrame:
         pd.DataFrame
 
     """
-    return pd.read_csv(file_path, sep="\t")
+    return pd.read_csv(file_path, sep="\t", **kwargs)
 
 
 def reversed_enumerate(sequence: Sequence):
