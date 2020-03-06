@@ -1,0 +1,16 @@
+{
+	"ProteinSummaryFiles": [
+		"test_data/6hr data/20130512_nonphos_ProteinSummary_113.txt",
+		"test_data/6hr data/20130515_NCBI_iT_ProteinSummary_113.txt",
+		"test_data/6hr data/20130916_2DRPRP_PH10_1-NCBI_ProteinSummary_113.txt",
+		"test_data/6hr data/20130917_20ugMBI_2DRP-RP_PH10_2_ProteinSummary_113.txt",
+		"test_data/6hr data/20130918pgcrp-ncbi_ProteinSummary_113.txt",
+		"test_data/6hr data/20130919_2DPGCRP_ProteinSummary_113.txt",
+		"test_data/6hr data/20131115-ncbi_tho 8F_ProteinSummary_113.txt",
+		"test_data/6hr data/20131118-ncbi_tho 8F_ProteinSummary_113.txt",
+		"test_data/6hr data/2D-HILICSCXRP-np_ProteinSummary_113.txt",
+		"test_data/6hr data/3D_HILICSCXRP_np_ProteinSummary_113.txt",
+		"test_data/6hr data/F1-8 all thou NCBI 20140117search mgf_ProteinSummary_113.txt"
+	],
+	"ResultsDirectory": "test_data/results"
+}
