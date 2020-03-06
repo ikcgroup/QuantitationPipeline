@@ -4,6 +4,7 @@ import os
 
 import pandas as pd
 
+from .appbase import AppBase
 from .quantify_config import QuantifyConfig
 from .utilities import read_tsv
 
@@ -11,13 +12,13 @@ from .utilities import read_tsv
 OUTPUT_FILE_NAME = "AccessionProteinNames.csv"
 
 
-class Accessions:
+class Accessions(AppBase):
     """
     """
-    def __init__(self, config_file: str):
+    def __init__(self, *args):
         """
         """
-        self._config = QuantifyConfig(config_file)
+        super().__init__(*args)
 
         self._merged_dir = os.path.join(self._config.results_dir, "group")
 

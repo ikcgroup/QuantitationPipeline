@@ -8,6 +8,7 @@ from typing import List
 
 import pandas as pd
 
+from .appbase import AppBase
 from .fdr import get_fdr_name, read_fdr_value
 from .quantify_config import ConfigError, QuantifyConfig
 from .utilities import get_file_id, read_tsv, reversed_enumerate, split_to_set
@@ -18,29 +19,18 @@ LOGGER = logging.getLogger(__name__)
 HASH_REMOVE_REGEX = re.compile(r"-like|isoform X\d+ |\d+\w+")
 
 
-class CoWinner:
+class CoWinner(AppBase):
     """
     """
-    def __init__(self, config_file: str):
+    def __init__(self, *args):
         """
         Initialize the CoWinner object.
 
         """
-        self._config = QuantifyConfig(config_file)
+        super().__init__(*args)
 
         self._output_dir = os.path.join(self._config.results_dir, "cowinner")
         self._merged_dir = os.path.join(self._output_dir, "merged")
-
-    def validate_config(self):
-        """
-        Validates the configuration file to ensure that input is appropriate
-        for use.
-
-        Raises:
-            ConfigError
-
-        """
-        self._config.validate()
 
     def evaluate(self):
         """
