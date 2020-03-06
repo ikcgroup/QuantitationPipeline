@@ -7,6 +7,7 @@ import unittest
 import pandas as pd
 
 from quantify_proteins import CoWinner
+from quantify_proteins.utilities import read_tsv
 
 
 BENCHMARK_DIR = os.path.join("test_data", "6hr data", "cowinner")
@@ -14,10 +15,6 @@ TEST_CONFIG_FILE = "test_config.json"
 RESULTS_DIR = os.path.join("test_data", "results", "cowinner")
 MERGE_BENCHMARK_FILE = os.path.join(
     BENCHMARK_DIR, "merge", "20130512_nonphos_ProteinSummary_113 Merge.txt")
-
-
-def read_tsv(tsv_file: str) -> pd.DataFrame:
-    return pd.read_csv(tsv_file, sep="\t")
 
 
 class CoWinnerTests(unittest.TestCase):
