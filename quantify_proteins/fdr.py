@@ -14,14 +14,28 @@ CRITICAL_FDR_CELLS: Dict[int, Tuple[int, int]] = {
 }
 
 
-def get_fdr_name(prot_summary_name: str) -> str:
+def get_fdr_name(summary_name: str) -> str:
     """
+    Infers the name of the FDR Excel spreadsheet based on that of the input
+    Protein/Peptide Summary file.
+
+    Args:
+        summary_name (str): The path to a ProteinSummary/PeptideSummary file.
+
+    Returns:
+        The name of the corresponding FDR Excel spreadsheet.
+
+    Raises:
+        ValueError
+
     """
-    idx = prot_summary_name.find("ProteinSummary")
+    idx = summary_name.find("ProteinSummary")
     if idx == -1:
-        raise ValueError(f"File name {prot_summary_name} does not contain "
-                         "ProteinSummary")
-    return f"{prot_summary_name[:idx]}_FDR.xlsx"
+        idx = summary_name.find("PeptideSummary")
+    if idx == -1:
+        raise ValueError(f"File name {summary_name} does not contain "
+                         "ProteinSummary or PeptideSummary")
+    return f"{summary_name[:idx]}_FDR.xlsx"
 
 
 def read_fdr_value(fdr_name: str, crit_fdr: int = 5) -> int:

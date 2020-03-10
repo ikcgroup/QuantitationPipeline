@@ -1,0 +1,16 @@
+{
+	"ProteinSummaryFiles": [
+	],
+	"PeptideSummaryFiles": [
+		"test_data/monkey_brain/I01/I01_PeptideSummary.txt",
+		"test_data/monkey_brain/I02/I02_PeptideSummary.txt"
+	],
+	"ResultsDirectory": "test_data/monkey_brain/results",
+	"QuantitationRatios": [
+		"114:113",
+		"116:115",
+		"118:117",
+		"121:119"
+	],
+	"PeptideConfidenceThreshold": 95
+}

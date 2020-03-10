@@ -1,6 +1,9 @@
 #! /usr/bin/env python3
 
+import os
+
 from .quantify_config import ConfigError, QuantifyConfig
+from .utilities import dir_exists
 
 
 class AppBase:
@@ -10,6 +13,9 @@ class AppBase:
         """
         """
         self._config = QuantifyConfig(config_file)
+
+        if not dir_exists(self._config.results_dir):
+            os.makedirs(self._config.results_dir)
 
     def validate_config(self):
         """

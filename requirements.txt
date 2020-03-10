@@ -1,3 +1,6 @@
 click
+numpy
+openpyxl
 pandas
+scipy
 xlrd
