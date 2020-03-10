@@ -5,20 +5,21 @@ from typing import Optional, Sequence
 
 import pandas as pd
 
+
 #
 # Pandas functions
 #
-def read_tsv(file_path: str, **kwargs) -> pd.DataFrame:                         
-    """                                                                         
-    Reads the given tab-separated file using Pandas.                            
-                                                                                
-    Args:                                                                       
-        file_path (str): The path to the tab-separated file.                    
-                                                                                
-    Returns:                                                                    
-        pd.DataFrame                                                            
-                                                                                
-    """                                                                         
+def read_tsv(file_path: str, **kwargs) -> pd.DataFrame:
+    """
+    Reads the given tab-separated file using Pandas.
+
+    Args:
+        file_path (str): The path to the tab-separated file.
+
+    Returns:
+        pd.DataFrame
+
+    """
     return pd.read_csv(file_path, sep="\t", **kwargs)
 
 
@@ -42,6 +43,7 @@ def split_to_set(series: pd.Series, sep: str) -> pd.Series:
 
     """
     return series.str.split(sep).map(set)
+
 
 #
 # Other functions

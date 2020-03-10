@@ -10,7 +10,7 @@ import pandas as pd
 
 from .appbase import AppBase
 from .fdr import get_fdr_name, read_fdr_value
-from .quantify_config import ConfigError, QuantifyConfig
+from .quantify_config import ConfigError
 from .utilities import get_file_id, read_tsv, reversed_enumerate, split_to_set
 
 
@@ -29,23 +29,27 @@ class CoWinner(AppBase):
         """
         super().__init__(*args)
 
-        self._output_dir = os.path.join(self._config.results_dir, "cowinner")
-        self._merged_dir = os.path.join(self._output_dir, "merged")
+        self.output_dir = os.path.join(self.config.results_dir, "cowinner")
+        self.merged_dir = os.path.join(self.output_dir, "merged")
+
+    def validate_config(self):
+        """
+        """
+        super().validate_config()
+        if not self.config.protein_summary_files:
+            raise ConfigError("No ProteinSummary files configured")
 
     def evaluate(self):
         """
         """
-        prot_summary_files = self._config.protein_summary_files
-        if not prot_summary_files:
-            raise ConfigError("No ProteinSummary files configured")
-
-        if not os.path.exists(self._output_dir):
-            os.makedirs(self._output_dir)
+        if not os.path.exists(self.output_dir):
+            os.makedirs(self.output_dir)
 
         LOGGER.info("Starting cowinner evaluation")
 
         with mp.Pool(processes=4) as pool:
-            pool.map(self._process_protein_summary, prot_summary_files)
+            pool.map(self._process_protein_summary,
+                     self.config.protein_summary_files)
             pool.close()
             pool.join()
 
@@ -69,14 +73,14 @@ class CoWinner(AppBase):
         prot_df = read_tsv(summary_file)
         prot_df = reduce_df(prot_df, n_pass_fdr)
         prot_df.to_csv(
-                os.path.join(self._output_dir, os.path.basename(summary_file)),
+                os.path.join(self.output_dir, os.path.basename(summary_file)),
                 sep="\t", index=False)
 
     def merge(self):
         """
         """
-        cowinner_files = [os.path.join(self._output_dir, f)
-                          for f in next(os.walk(self._output_dir))[2]
+        cowinner_files = [os.path.join(self.output_dir, f)
+                          for f in next(os.walk(self.output_dir))[2]
                           if not f.startswith(".")]
         cowinner_files.sort()
 
@@ -109,10 +113,10 @@ class CoWinner(AppBase):
         base_df.Accession = base_df.Accession.map(
                 lambda a: "; ".join(sorted(a)))
 
-        if not os.path.exists(self._merged_dir):
-            os.makedirs(self._merged_dir)
+        if not os.path.exists(self.merged_dir):
+            os.makedirs(self.merged_dir)
 
-        base_df.to_csv(os.path.join(self._merged_dir, "merged.csv"), sep="\t",
+        base_df.to_csv(os.path.join(self.merged_dir, "merged.csv"), sep="\t",
                        index=False)
 
 

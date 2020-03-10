@@ -1,8 +1,11 @@
 #! /usr/bin/env python3
 
+# This enables delayed evaluation of type hints, which is necessary for the
+# classmethods defined below
+from __future__ import annotations
 import json
 import os
-from typing import List
+from typing import Dict, List
 
 from .fdr import get_fdr_name
 from .utilities import get_file_id
@@ -78,16 +81,47 @@ class QuantifyConfig:
     A class to provide standardized access to the underlying JSON config.
 
     """
-    def __init__(self, config_file: str):
+    def __init__(self, config_data: Dict):
         """
-        Initialize by reading the JSON configuration.
+        Initializes the QuantifyConfig instance. In general, the class methods
+        from_file and from_dict should be used, rather than accessing this
+        constructor directly.
+
+        Args:
+            config_data (dict): A configuration dictionary.
+
+        """
+        self._config = config_data
+
+    @classmethod
+    def from_file(cls, config_file: str) -> QuantifyConfig:
+        """
+        Initializes the QuantifyConfig using a JSON input file.
 
         Args:
             config_file (str): The path to the JSON configuration file.
 
+        Returns:
+            QuantifyConfig
+
         """
         with open(config_file) as fh:
-            self._config = json.load(fh)
+            data = json.load(fh)
+        return cls(data)
+
+    @classmethod
+    def from_dict(cls, config_dict: Dict) -> QuantifyConfig:
+        """
+        Initializes the QuantifyConfig using a dictionary.
+
+        Args:
+            config_dict (dict): A dictionary with valid configuration options.
+
+        Returns:
+            QuantifyConfig
+
+        """
+        return cls(config_dict)
 
     @property
     def protein_summary_files(self) -> List[str]:

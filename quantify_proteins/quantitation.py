@@ -87,6 +87,16 @@ class Quantifier(AppBase):
         # The current iTRAQ tag ratio being processed
         self._ratio: Optional[str] = None
 
+    def validate_config(self):
+        """
+        Validates the input configuration for quantitation. Note that this
+        hides the AppBase implementation.
+
+        """
+        super().validate_config()
+        if not self.config.peptide_summary_files:
+            raise ConfigError("No PeptideSummary files configured")
+
     def quantify(self):
         """
         Performs quantitation analysis on the configured PeptideSummary files.
@@ -96,14 +106,10 @@ class Quantifier(AppBase):
             ConfigError
 
         """
-        pep_summary_files = self._config.peptide_summary_files
-        if not pep_summary_files:
-            raise ConfigError("No PeptideSummary files configured")
-
         LOGGER.info("Starting quantitation")
 
-        summary_ratios = itertools.product(pep_summary_files,
-                                           self._config.quantitation_ratios)
+        summary_ratios = itertools.product(self.config.peptide_summary_files,
+                                           self.config.quantitation_ratios)
         with mp.Pool(processes=4) as pool:
             pool.starmap(self._process_peptide_summary, summary_ratios)
             pool.close()
@@ -164,7 +170,7 @@ class Quantifier(AppBase):
 
         """
         output_path = os.path.join(
-            self._config.results_dir,
+            self.config.results_dir,
             get_output_file_name(summary_path, self._ratio))
         with pd.ExcelWriter(output_path) as writer:
             peptide_df.to_excel(writer, sheet_name="Peptide", index=False)
@@ -193,7 +199,7 @@ class Quantifier(AppBase):
             (df.N <= max_n) &
             # Remove peptides which don't pass the configured confidence
             # threshold
-            (df.Conf >= self._config.peptide_conf_threshold) &
+            (df.Conf >= self.config.peptide_conf_threshold) &
             # Keep only the peptides ProteinPilot used for quantitation
             (df.Used == 1) &
             # Keep only the peptides with valid quantitation ratios for the
@@ -321,7 +327,7 @@ class Quantifier(AppBase):
 
         """
         prot_df = fdr_df[fdr_df[self.NUM_SPECTRA_COL]
-                         >= self._config.min_num_spectra].copy()
+                         >= self.config.min_num_spectra].copy()
         prot_df = self._sum_wx(peptide_df, prot_df)
         prot_df = self._sum_norm_weight(peptide_df, prot_df)
         prot_df[self.WEIGHTED_AVG_COL] = prot_df[self.SUM_WX_COL] /\

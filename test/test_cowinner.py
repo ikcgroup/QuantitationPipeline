@@ -6,13 +6,18 @@ import unittest
 
 import pandas as pd
 
-from quantify_proteins import CoWinner
-from quantify_proteins.utilities import read_tsv
+from quantify_proteins import ConfigError, CoWinner, QuantifyConfig
+from quantify_proteins.utilities import dir_exists, read_tsv
 
+from .test_common import build_config, TEST_CONFIG_DIR
+
+
+TEST_CONFIG_FILE = os.path.join(TEST_CONFIG_DIR, "test_config.json")
+EMPTY_CONFIG_FILE = os.path.join(TEST_CONFIG_DIR, "empty.json")
 
 BENCHMARK_DIR = os.path.join("test_data", "6hr data", "cowinner")
-TEST_CONFIG_FILE = "test_config.json"
 RESULTS_DIR = os.path.join("test_data", "results", "cowinner")
+
 # Use the _FIXED file since the original was produced by the C# program
 # with an off-by-one error which resulted in the first line of the original
 # merge result not being considered on the second round of deduplication
@@ -23,9 +28,10 @@ MERGE_BENCHMARK_FILE = os.path.join(
 
 class CoWinnerTests(unittest.TestCase):
     def setUp(self):
-        if os.path.exists(RESULTS_DIR):
-            shutil.rmtree(RESULTS_DIR)
-            os.makedirs(RESULTS_DIR)
+        config = QuantifyConfig.from_file(TEST_CONFIG_FILE)
+
+        if dir_exists(config.results_dir):
+            shutil.rmtree(config.results_dir)
 
     def test_cowinner(self):
         co_winner = CoWinner(TEST_CONFIG_FILE)
@@ -39,7 +45,7 @@ class CoWinnerTests(unittest.TestCase):
         except ConfigError as e:
             self.fail(e.message)
 
-        for prot_summary in co_winner._config.protein_summary_files:
+        for prot_summary in co_winner.config.protein_summary_files:
             summary_name = os.path.basename(prot_summary)
             res_file = os.path.join(RESULTS_DIR, summary_name)
             self.assertTrue(os.path.exists(res_file))
@@ -52,7 +58,7 @@ class CoWinnerTests(unittest.TestCase):
 
         co_winner.merge()
 
-        merged_df = read_tsv(os.path.join(co_winner._merged_dir, "merged.csv"))
+        merged_df = read_tsv(os.path.join(co_winner.merged_dir, "merged.csv"))
 
         # Rename "Unnamed" columns due to inserting a new column during
         # processing
@@ -63,6 +69,29 @@ class CoWinnerTests(unittest.TestCase):
         benchmark_df = read_tsv(MERGE_BENCHMARK_FILE)
 
         pd.testing.assert_frame_equal(merged_df, benchmark_df)
+
+    def test_no_input(self):
+        """
+        Test when no ProteinSummary files are configured.
+
+        """
+        co_winner = CoWinner(EMPTY_CONFIG_FILE)
+
+        def _test_validate(msg):
+            with self.assertRaisesRegex(
+                    ConfigError, "No ProteinSummary files configured",
+                    msg=msg):
+                co_winner.validate_config()
+
+        # ProteinSummaryFiles option missing from config file
+        _test_validate("validate_config did not raise error on missing option "
+                       "ProteinSummaryFiles")
+
+        # ProteinSummaryFiles option present, but empty list
+        co_winner.config = build_config(                                        
+            results_dir="temp", protein_summary_files=[])
+        _test_validate("validate_config did not raise error on no "
+                       "ProteinSummary files configured")
 
 
 if __name__ == "__main__":
