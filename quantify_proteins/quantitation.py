@@ -146,13 +146,14 @@ class Quantifier(AppBase):
 
         peptide_df = self._update_peptide_df(peptide_df, fdr_df)
 
-        prot_df, exp_avg_wx_factor = self._setup_protein_df(peptide_df, fdr_df)
+        protein_df, exp_avg_wx_factor = self._setup_protein_df(
+            peptide_df, fdr_df)
 
         peptide_df = self._finalize_peptide_df(peptide_df, exp_avg_wx_factor)
 
-        prot_df = self._finalize_protein_df(prot_df, peptide_df)
+        protein_df = self._finalize_protein_df(protein_df, peptide_df)
 
-        self._write_excel(peptide_summary, peptide_df, prot_df, fdr_df,
+        self._write_excel(peptide_summary, peptide_df, protein_df, fdr_df,
                           summary_df)
 
     def _write_excel(self, summary_path: str, peptide_df: pd.DataFrame,
@@ -326,54 +327,54 @@ class Quantifier(AppBase):
             DataFrame and the float is the wx normalization factor.
 
         """
-        prot_df = fdr_df[fdr_df[self.NUM_SPECTRA_COL]
+        protein_df = fdr_df[fdr_df[self.NUM_SPECTRA_COL]
                          >= self.config.min_num_spectra].copy()
-        prot_df = self._sum_wx(peptide_df, prot_df)
-        prot_df = self._sum_norm_weight(peptide_df, prot_df)
-        prot_df[self.WEIGHTED_AVG_COL] = prot_df[self.SUM_WX_COL] /\
-            prot_df[self.SUM_NORM_WEIGHT_COL]
-        prot_df[self.EXP_WEIGHTED_AVG_COL] =\
-            np.exp(prot_df[self.WEIGHTED_AVG_COL])
+        protein_df = self._sum_wx(peptide_df, protein_df)
+        protein_df = self._sum_norm_weight(peptide_df, protein_df)
+        protein_df[self.WEIGHTED_AVG_COL] = protein_df[self.SUM_WX_COL] /\
+            protein_df[self.SUM_NORM_WEIGHT_COL]
+        protein_df[self.EXP_WEIGHTED_AVG_COL] =\
+            np.exp(protein_df[self.WEIGHTED_AVG_COL])
 
-        median_exp_avg = np.median(prot_df[self.EXP_WEIGHTED_AVG_COL])
+        median_exp_avg = np.median(protein_df[self.EXP_WEIGHTED_AVG_COL])
 
-        prot_df[self.NORM_PROTEIN_RATIO_COL] =\
-            prot_df[self.EXP_WEIGHTED_AVG_COL] / median_exp_avg
+        protein_df[self.NORM_PROTEIN_RATIO_COL] =\
+            protein_df[self.EXP_WEIGHTED_AVG_COL] / median_exp_avg
 
-        return prot_df, median_exp_avg
+        return protein_df, median_exp_avg
 
-    def _finalize_protein_df(self, prot_df: pd.DataFrame,
+    def _finalize_protein_df(self, protein_df: pd.DataFrame,
                              peptide_df: pd.DataFrame) -> pd.DataFrame:
         """
         Finalizes calculations on the protein DataFrame, using information
         in the associated peptide DataFrame.
 
         Args:
-            prot_df (pd.DataFrame): The initialized protein DataFrame.
+            protein_df (pd.DataFrame): The initialized protein DataFrame.
             peptide_df (pd.DataFrame): The peptide DataFrame.
 
         Returns:
             pd.DataFrame
 
         """
-        prot_df = self._apply_col_merge(peptide_df, prot_df,
-                                        self.NEW_LN_RATIO_COL, self.ST_DEV_COL,
-                                        lambda d: d.std())
+        protein_df = self._apply_col_merge(peptide_df, protein_df,
+                                           self.NEW_LN_RATIO_COL, self.ST_DEV_COL,
+                                           lambda d: d.std())
 
-        deg_freedom = prot_df[self.NUM_SPECTRA_COL] - 1
+        deg_freedom = protein_df[self.NUM_SPECTRA_COL] - 1
 
-        prot_df[self.T_VALUE_UP_COL] = self._t_value(prot_df, self.T_UP_FACTOR)
+        protein_df[self.T_VALUE_UP_COL] = self._t_value(protein_df, self.T_UP_FACTOR)
 
-        prot_df[self.P_VALUE_UP_COL] = \
-            1. - scipy.stats.t.cdf(prot_df[self.T_VALUE_UP_COL], deg_freedom)
+        protein_df[self.P_VALUE_UP_COL] = \
+            1. - scipy.stats.t.cdf(protein_df[self.T_VALUE_UP_COL], deg_freedom)
 
-        prot_df[self.T_VALUE_DOWN_COL] = \
-            self._t_value(prot_df, self.T_DOWN_FACTOR)
+        protein_df[self.T_VALUE_DOWN_COL] = \
+            self._t_value(protein_df, self.T_DOWN_FACTOR)
 
-        prot_df[self.P_VALUE_DOWN_COL] = \
-            scipy.stats.t.cdf(prot_df[self.T_VALUE_DOWN_COL], deg_freedom)
+        protein_df[self.P_VALUE_DOWN_COL] = \
+            scipy.stats.t.cdf(protein_df[self.T_VALUE_DOWN_COL], deg_freedom)
 
-        return prot_df
+        return protein_df
 
     #
     # Helper methods
@@ -407,8 +408,8 @@ class Quantifier(AppBase):
         new column name (rename_col).
 
         Args:
-            source_df (pd.DataFrame): The dataframe containing col.
-            target_df (pd.DataFrame): The dataframe to which the calculated
+            source_df (pd.DataFrame): The DataFrame containing col.
+            target_df (pd.DataFrame): The DataFrame to which the calculated
                                       values should be merged.
             col (str): The name of the column to which apply_func is applied.
             rename_col (str): The new name of the resulting column in the
@@ -433,8 +434,8 @@ class Quantifier(AppBase):
         accession values.
 
         Args:
-            sum_df (pd.DataFrame): The dataframe containing sum_col.
-            target_df (pd.DataFrame): The dataframe to which the summed values
+            sum_df (pd.DataFrame): The DataFrame containing sum_col.
+            target_df (pd.DataFrame): The DataFrame to which the summed values
                                       should be merged.
             sum_col (str): The name of the column to sum.
             rename_col (str): The new name of the summed column in the returned

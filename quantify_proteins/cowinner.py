@@ -70,9 +70,9 @@ class CoWinner(AppBase):
         # The number of protein identifications passing critical local FDR
         n_pass_fdr = read_fdr_value(fdr_path, 5)
 
-        prot_df = read_tsv(summary_file)
-        prot_df = reduce_df(prot_df, n_pass_fdr)
-        prot_df.to_csv(
+        protein_df = read_tsv(summary_file)
+        protein_df = reduce_df(protein_df, n_pass_fdr)
+        protein_df.to_csv(
                 os.path.join(self.output_dir, os.path.basename(summary_file)),
                 sep="\t", index=False)
 

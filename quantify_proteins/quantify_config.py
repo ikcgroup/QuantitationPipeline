@@ -61,7 +61,7 @@ def _validate_file_list(files: List[str]) -> List[str]:
             try:
                 fdr_path = get_fdr_name(file_path)
             except ValueError as e:
-                errors.append(e.message)
+                errors.append(str(e))
             else:
                 if not os.path.exists(fdr_path):
                     errors.append(f"{fdr_path} NOT found")

@@ -1,7 +1,7 @@
 #! /usr/bin/env python3
 
 import os
-from typing import Optional, Sequence
+from typing import Optional, Sequence, Union
 
 import pandas as pd
 
@@ -24,7 +24,7 @@ def read_tsv(file_path: str, **kwargs) -> pd.DataFrame:
 
 
 def ordered_value_counts(series: pd.Series, name: Optional[str] = None) \
-        -> pd.Series:
+        -> Union[pd.Series, pd.DataFrame]:
     """
     The equivalent of value_counts, but without relying on a hash table,
     which introduces inconsistent ordering. The effect of this is to maintain
