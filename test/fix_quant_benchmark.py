@@ -11,9 +11,11 @@ should be used as the benchmark in the tests.
 
 """
 
+import os
+
 import click
 import openpyxl
-import xlwings as xl
+import xlwings as xw
 
 
 @click.command()
@@ -28,8 +30,9 @@ def fix_benchmark_spreadsheet(benchmark_file: str):
     sheet["P2"] = f"=MEDIAN($H$2:$H${sheet.max_row})"
     fixed_file = benchmark_file.replace(".xlsx", "_FIXED.xlsx")
     book.save(fixed_file)
-    app = xl.App(visible=False)
-    book = app.books.open(fixed_file)
+    app = xw.App(visible=False)
+    book = app.api.open_workbook(workbook_file_name=os.path.abspath(fixed_file),
+                                 timeout=3000)
     book.save()
     app.kill()
 
