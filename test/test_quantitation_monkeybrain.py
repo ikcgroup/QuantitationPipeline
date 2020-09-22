@@ -1,13 +1,15 @@
 #! /usr/bin/env python3
 
+import functools
 import itertools
 import os
 import unittest
 
+import multiprocess as mp
 import pandas as pd
 
 from quantify_proteins import ConfigError, Quantifier
-from quantify_proteins.quantitation import get_output_file_name
+from quantify_proteins.quantitation import get_quant_output_file_name
 
 from .test_common import TEST_CONFIG_DIR
 
@@ -34,7 +36,7 @@ class MonkeyBrainQuantitationTests(unittest.TestCase):
         try:
             quantifier.validate_config()
         except ConfigError as e:
-            self.fail(e.message)
+            self.fail(str(e))
 
         quantifier.quantify()
 
@@ -45,17 +47,27 @@ class MonkeyBrainQuantitationTests(unittest.TestCase):
         # Unfortunately, this is not easily parallelized as _test_summary_ratio
         # uses self.subTest and unittest.TestCase cannot be pickled due to
         # an _Outcome object containing a TextIOWrapper (cannot be pickled)
-        for pep_summary, ratio in summary_ratios:
-            self._test_summary_ratio(pep_summary, ratio, quantifier)
+        with mp.Pool(processes=4) as pool:
+            pool.starmap(functools.partial(self._test_summary_ratio,
+                                           quantifier=quantifier),
+                         summary_ratios)
 
     def _test_summary_ratio(self, pep_summary: str, ratio: str, quantifier: Quantifier):
         """
         """
-        output_file = get_output_file_name(pep_summary, ratio)
+        output_file = get_quant_output_file_name(pep_summary, ratio)
         output_path = os.path.join(
             quantifier.config.results_dir, output_file)
 
         benchmark_path = os.path.join(BENCHMARK_DIR, output_file)
+
+        # Check to see whether a fixed version of the benchmark file exists
+        # - this is necessary because of a hardcoding mistake in the C#
+        # pipeline which resulted in incorrect calculations of the normalization
+        # factor used in calculation of the normalized protein ratio
+        fixed_benchmark_path = benchmark_path.replace(".xlsx", "_FIXED.xlsx")
+        if os.path.exists(fixed_benchmark_path):
+            benchmark_path = fixed_benchmark_path
 
         for sheet in SHEET_NAMES:
             df = read_excel_sheet(output_path, sheet)
@@ -72,6 +84,10 @@ class MonkeyBrainQuantitationTests(unittest.TestCase):
                 # dropped before comparison - this value is no longer
                 # stored in the output
                 benchmark_df = benchmark_df.iloc[:, 0:14]
+            elif sheet == "FDR with 1 spectra":
+                print(benchmark_path, benchmark_df["No. of spectra"].isnull().sum())
+                benchmark_df["No. of spectra"] =\
+                    benchmark_df["No. of spectra"].astype("int64")
 
             # check_exact is set to False in order to ignore small
             # differences in calculated values, less than the comparison

@@ -58,7 +58,9 @@ class CoWinnerTests(unittest.TestCase):
 
         co_winner.merge()
 
-        merged_df = read_tsv(os.path.join(co_winner.merged_dir, "merged.csv"))
+        merged_df = read_tsv(
+            os.path.join(co_winner.merged_dir,
+                         co_winner.config.cowinner_merge_output_file))
 
         # Rename "Unnamed" columns due to inserting a new column during
         # processing
