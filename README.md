@@ -28,7 +28,9 @@ systems.
 ```shell script
 git clone git@github.com:ikcgroup/QuantitationPipeline.git
 ```
+
 This will create a new directory containing the pipeline code.
+
 3. Navigate to the new directory (*e.g.* `cd QuantitationPipeline`).
 4. Run `pip3 install -r requirements.txt`. This will install the dependency modules.
 5. Run `python3 setup.py install`. This will install the pipeline's scripts
@@ -39,22 +41,22 @@ for use on your computer.
 All of the scripts are configured using a configuration file in JSON syntax, for example:
 ```JSON
 {
-	"ProteinSummaryFiles": [
-		"data/Run1_ProteinSummary_113.txt",
-		"data/Run2_ProteinSummary_113.txt",
+    "ProteinSummaryFiles": [
+        "data/Run1_ProteinSummary_113.txt",
+        "data/Run2_ProteinSummary_113.txt",
 	],
     "PeptideSummaryFiles": [
-		"data/Run1_PeptideSummary_113.txt",
-		"data/Run2_PeptideSummary_113.txt",
+        "data/Run1_PeptideSummary_113.txt",
+        "data/Run2_PeptideSummary_113.txt",
 	],
-	"ResultsDirectory": "data/results",
+    "ResultsDirectory": "data/results",
     "QuantitationRatios": [
-		"114:113",
-		"116:115",
-		"118:117",
-		"121:119"
-	],
-	"PeptideConfidenceThreshold": 95
+        "114:113",
+        "116:115",
+        "118:117",
+        "121:119"
+    ],
+    "PeptideConfidenceThreshold": 95
 }
 ```
 
