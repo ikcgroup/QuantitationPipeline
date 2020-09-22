@@ -1,7 +1,8 @@
 #! /usr/bin/env python3
 
+import csv
 import os
-from typing import Optional, Sequence, Union
+from typing import Dict, Optional, Sequence, Union
 
 import pandas as pd
 
@@ -48,6 +49,21 @@ def split_to_set(series: pd.Series, sep: str) -> pd.Series:
 #
 # Other functions
 #
+def read_accession_names(file_path: str) -> Dict[str, str]:
+    """
+    Reads the protein accession names CSV file.
+
+    Args:
+        file_path (str): Path to the protein accession names CSV file.
+
+    Returns:
+
+    """
+    with open(file_path) as fh:
+        reader = csv.reader(fh, delimiter="\t")
+        return dict(reader)
+
+
 def dir_exists(dir_path: str) -> bool:
     """
     Tests whether the path provided corresponds to an existing directory.
