@@ -173,6 +173,29 @@ class QuantifyConfig:
         """
         return self._config["ResultsDirectory"]
 
+    @property
+    def cowinner_merge_output_file(self) -> str:
+        """
+        The file to which to output the merged cowinner results.
+
+        Returns:
+            str
+
+        """
+        return self._config.get("CoWinnerMergeOutputFile", "merged.csv")
+
+    @property
+    def accessions_output_file(self) -> str:
+        """
+        The file to which to output the accession-protein name map.
+
+        Returns:
+            str
+
+        """
+        return self._config.get("CoWinnerMergeOutputFile",
+                                "AccessionProteinNames.csv")
+
     def validate(self):
         """
         Validates the input configuration to check for obvious problems such
@@ -192,12 +215,20 @@ class QuantifyConfig:
 
     def _validate_protein_summary_files(self) -> List[str]:
         """
+        Validates the input to the ProteinSummaryFiles option.
+
+        Returns:
+            list
+
         """
         return _validate_file_list(self.protein_summary_files)
 
     def _validate_peptide_summary_files(self) -> List[str]:
         """
         Validates the input to the PeptideSummaryFiles option.
+
+        Returns:
+            list
 
         """
         return _validate_file_list(self.peptide_summary_files)
@@ -206,6 +237,9 @@ class QuantifyConfig:
         """
         Validates the input to QuantitationRatios, checking each is one of
         the valid options.
+
+        Returns:
+            list
 
         """
         errors: List[str] = []

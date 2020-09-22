@@ -8,9 +8,6 @@ from .appbase import AppBase
 from .utilities import dir_exists, read_tsv
 
 
-OUTPUT_FILE_NAME = "AccessionProteinNames.csv"
-
-
 class Accessions(AppBase):
     """
     A class containing methods related to the generation of an accession -
@@ -36,5 +33,6 @@ class Accessions(AppBase):
         if not dir_exists(self.merged_dir):
             os.makedirs(self.merged_dir)
 
-        target_file = os.path.join(self.merged_dir, OUTPUT_FILE_NAME)
+        target_file = os.path.join(
+            self.merged_dir, self.config.accessions_output_file)
         merged_df.to_csv(target_file, sep="\t", index=False)

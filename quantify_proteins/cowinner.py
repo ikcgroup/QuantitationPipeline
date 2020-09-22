@@ -116,8 +116,10 @@ class CoWinner(AppBase):
         if not os.path.exists(self.merged_dir):
             os.makedirs(self.merged_dir)
 
-        base_df.to_csv(os.path.join(self.merged_dir, "merged.csv"), sep="\t",
-                       index=False)
+        base_df.to_csv(
+            os.path.join(self.merged_dir,
+                         self.config.cowinner_merge_output_file),
+            sep="\t", index=False)
 
 
 def _merge_to_base(source_df: pd.DataFrame, target_df: pd.DataFrame):
