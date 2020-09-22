@@ -49,7 +49,7 @@ def main(config_file):
     """
     co_winner = CoWinner(config_file)
     co_winner.validate_config()
-    #co_winner.evaluate()
+    co_winner.evaluate()
     co_winner.merge()
 
 
